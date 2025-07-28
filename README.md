@@ -1,7 +1,15 @@
-#Controllable and Stealthy Shilling Attacks via Dispersive Latent Diffusion (DLDA)
+# Controllable and Stealthy Shilling Attacks via Dispersive Latent Diffusion (DLDA)
 
 Recommender systems have become integral to various online platforms and Apps, yet their reliance on collective user behavior exposes a critical vulnerability. Adversaries can inject malicious users and interactions to manipulate item exposure, which is known as shilling. Although recent generative methods improve the realism of fake users, they often struggle to jointly achieve precise target promotion and sufficient behavioral stealth, making them susceptible to detection.
 
 To address this trade-off and more comprehensively expose the vulnerabilities of RSs, we present a novel attack framework named DLDA that uses a conditional latent diffusion process to generate fake users with both high controllability and stealth. We first construct a collaborative embedding space where user and item representations are well-aligned and uniformly distributed, which provides a stable foundation for diffusion-based generation guided by behavioral templates. Then, we guide each denoising step using user and item templates that encode interaction-level preferences, gradually shaping the generation toward the target behavior. To enhance stealth without compromising control, we apply dispersive regularization to the intermediate states of the diffusion trajectory. While preserving the target-oriented generation guided by the dual templates, this regularization improves the stealth and diversity of the generated profiles. We conduct extensive experiments on three real-world datasets and five representative recommender models. DLDA consistently achieves the strongest target item promotion and remains highly evasive under various anomaly detection methods. These results expose a deeper vulnerability in recommender systems, calling for greater attention to their security and the design of more resilient recommendation models.
 
 ![](Figure/overview.png "The overview of DLDA")
+
+## Requirements
+```plaintext
+pandas==1.3.5
+numba==0.60.0
+numpy==1.24.2
+scipy==1.13.1
+torch==2.1.0
