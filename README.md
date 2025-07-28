@@ -1,4 +1,4 @@
-# DLDA
+#Controllable and Stealthy Shilling Attacks via Dispersive Latent Diffusion (DLDA)
 
 Recommender systems have become integral to various online platforms and Apps, yet their reliance on collective user behavior exposes a critical vulnerability. Adversaries can inject malicious users and interactions to manipulate item exposure, which is known as shilling. Although recent generative methods improve the realism of fake users, they often struggle to jointly achieve precise target promotion and sufficient behavioral stealth, making them susceptible to detection.
 
