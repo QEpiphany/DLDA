@@ -56,7 +56,7 @@ DLDA/
          ├─ test.txt
          └─ targetItem_unpopular_5.txt
 ```
-### 2 Run
+## 2 Run
 ### 2.1 One-command default run (DLDA)
 
 ```bash
