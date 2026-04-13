@@ -16,13 +16,13 @@ def attack_parse_args():
                         help='proportion/number of users. proportion if value is float (0.01, 0.1), number if value is int (5, 10).')
     parser.add_argument('--maliciousFeedbackSize', type=float, default=0, metavar='N',
                         help='the feedback number of each user. If value is 0, the number of feedback is the average of real users.')
+    parser.add_argument('--pretrain_ratio', type=float, default=0.25, metavar='N',
+                        help='ratio of interactions sampled to pretrain the surrogate model')
 
     # ===== Bi-level attack parameters ===== #
     parser.add_argument('--Epoch', type=int, default=5, metavar='N', help='bi-level optimzation epoch')
     parser.add_argument('--innerEpoch', type=int, default=6, metavar='N', help='inner epoch')
     parser.add_argument('--outerEpoch', type=int, default=2, metavar='N', help='outer epoch')
-    parser.add_argument('--pretrain_ratio', type=float, default=0.25, metavar='N',
-                        help='ratio of interactions sampled to pretrain the surrogate model')
 
 
     # ===== If attack is gradient attack, the following parameters are necessary ===== #
