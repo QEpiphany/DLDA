@@ -1,6 +1,10 @@
-# Controllable and Stealthy Shilling Attacks via Dispersive Latent Diffusion (DLDA)
+# Dispersive Latent Diffusion for Stealthy Shilling Attacks (DLDA)
 
-Recommender systems (RSs) are now fundamental to online platforms, but their dependence on user-contributed data leaves them vulnerable to shilling attacks that can manipulate item rankings by injecting fake users. Although widely studied, most existing attack models fail to meet two critical objectives simultaneously: achieving strong adversarial promotion of target items while maintaining realistic behavior to evade detection. As a result, the true severity of shilling threats that manage to reconcile the two objectives remains underappreciated. To expose this overlooked vulnerability, we present DLDA, a diffusion-based attack framework that can generate highly effective yet indistinguishable fake users by enabling fine-grained control over target promotion. Specifically, DLDA operates in a pre-aligned collaborative embedding space, where it employs a conditional latent diffusion process to iteratively synthesize fake user profiles with precise target item control. To evade detection, DLDA introduces a dispersive regularization mechanism that promotes variability and realism in generated behavioral patterns. Extensive experiments on three real-world datasets and five popular RS models demonstrate that, compared to prior attacks, DLDA consistently achieves stronger item promotion while remaining harder to detect. These results highlight that modern RSs are more vulnerable than previously recognized, underscoring the urgent need for more robust defenses.
+Recommender systems (RSs) are susceptible to shilling attacks due to their reliance on user-generated interactions, where adversaries inject fake users to manipulate item rankings. 
+Although extensively studied, existing attack methods struggle to simultaneously achieve three key objectives: strong target promotion, realistic behavior for stealth, and low injection cost.
+
+To address this, we propose DLDA, a diffusion-based framework that generates both effective and stealthy fake users. DLDA operates in a pre-aligned collaborative embedding space and leverages conditional latent diffusion with user- and item-side guidance to achieve precise target promotion while preserving natural interaction patterns. To further improve realism, we introduce a dispersive regularization that encourages diverse behaviors and avoids unnatural clustering. In addition, a Poisson-based interaction modeling strategy enables realistic user activity with fewer injected interactions.
+Experiments on three real-world datasets and five representative RS models show that DLDA consistently achieves stronger target promotion while remaining harder to detect, with reduced injection cost. These results reveal increased vulnerability of modern RSs and highlight the need for more robust defenses.
 
 ![](Figure/overview.png "The overview of DLDA")
 
@@ -11,3 +15,5 @@ numba==0.60.0
 numpy==1.24.2
 scipy==1.13.1
 torch==2.1.0
+
+
