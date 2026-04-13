@@ -15,6 +15,7 @@ numba==0.60.0
 numpy==1.24.2
 scipy==1.13.1
 torch==2.1.0
+```
 
 ## DLDA Quick Start
 ### 1 Project Structure
