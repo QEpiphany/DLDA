@@ -1,9 +1,9 @@
 # Dispersive Latent Diffusion for Stealthy Shilling Attacks (DLDA)
 
 Recommender systems (RSs) are susceptible to shilling attacks due to their reliance on user-generated interactions, where adversaries inject fake users to manipulate item rankings. 
-Although extensively studied, existing attack methods struggle to simultaneously achieve three key objectives: strong target promotion, realistic behavior for stealth, and low injection cost.
+Although extensively studied, existing attack methods struggle to simultaneously achieve strong target promotion, realistic behavior for stealth, and low injection cost, due to an inherent tension between target signal concentration and alignment with the real user distribution.
 
-To address this, we propose DLDA, a diffusion-based framework that generates both effective and stealthy fake users. DLDA operates in a pre-aligned collaborative embedding space and leverages conditional latent diffusion with user- and item-side guidance to achieve precise target promotion while preserving natural interaction patterns. To further improve realism, we introduce a dispersive regularization that encourages diverse behaviors and avoids unnatural clustering. In addition, a Poisson-based interaction modeling strategy enables realistic user activity with fewer injected interactions.
+To address this, we propose DLDA, a diffusion-based framework that performs structure-aware generation to balance target signal injection and distributional alignment. DLDA operates in a pre-aligned collaborative latent space and leverages conditional latent diffusion with user- and item-side guidance to achieve precise target promotion while preserving natural interaction patterns. To further improve realism, we introduce a dispersive regularization that encourages diverse behaviors and avoids unnatural clustering. In addition, a Poisson-based interaction modeling strategy enables realistic user activity with fewer injected interactions.
 Experiments on three real-world datasets and six representative RS models show that DLDA consistently achieves stronger target promotion while remaining harder to detect, with reduced injection cost. These results reveal increased vulnerability of modern RSs and highlight the need for more robust defenses.
 
 ![](Figure/overview.png "The overview of DLDA")
