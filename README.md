@@ -4,7 +4,7 @@ Recommender systems (RSs) are vulnerable to shilling attacks because their relia
 
 We propose the Dispersive Latent Diffusion Attack (DLDA), a gray-box framework that generates target-oriented profiles in a collaborative latent space learned from partial interactions, without access to the victim model's architecture, parameters, gradients, or outputs. DLDA employs conditional latent diffusion with user- and item-side guidance for precise target promotion. Dispersive regularization prevents profile collapse and promotes behavioral diversity, while a Poisson-based projection produces sparse profiles with realistic activity levels. Experiments on three datasets and seven representative recommenders show that DLDA achieves strong target promotion across heterogeneous architectures, better distributional alignment, and substantially lower injection cost, while causing limited or comparable global performance changes. These results highlight the vulnerability of modern RSs to distribution-aware attacks and motivate more robust defenses.
 
-![](Figure/overview.png "The overview of DLDA")
+![](Figures/overview.png "The overview of DLDA")
 
 ## Requirements
 ```plaintext
