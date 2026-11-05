@@ -332,64 +332,58 @@ class DLDA:
         return hits / total if total > 0 else 0.0
 
     def train_lightgcn_model(self, sampled_matrix):
-        print(f"[INFO] Pretraining LightGCN model with DirectAU using sampled {self.pretrain_ratio:.0%} data...")
         user_num, item_num = sampled_matrix.shape
         train_matrix, val_matrix = self.split_interaction_matrix(sampled_matrix)
         model = LightGCN(user_num, item_num, embedding_dim=64, n_layers=3, gamma=1.0).cuda()
         optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
         norm_adj = self.build_adj_matrix(train_matrix)
-        patience = 20
-        best_hr = 0
-        epochs_no_improve = 0
-        best_model_state = None
-        max_epochs = 100
-        batch_size = 1024
-
-        for epoch in range(max_epochs):
+        training_losses = []
+        stable_checks = 0
+        for epoch in range(1, 2001):
             model.train()
             triplets = self.generate_bpr_triplets(train_matrix)
             random.shuffle(triplets)
-            total_train_loss = 0
-            for i in range(0, len(triplets), batch_size):
-                batch = triplets[i:i + batch_size]
+            loss_sum, seen = 0.0, 0
+            for start in range(0, len(triplets), 1024):
+                batch = triplets[start:start + 1024]
                 users, pos_items, neg_items = zip(*batch)
                 users = torch.LongTensor(users).cuda()
                 pos_items = torch.LongTensor(pos_items).cuda()
                 neg_items = torch.LongTensor(neg_items).cuda()
                 user_emb, item_emb = model(norm_adj)
-                u_emb = user_emb[users]
-                pos_emb = item_emb[pos_items]
-                neg_emb = item_emb[neg_items]
-                pos_scores = torch.sum(u_emb * pos_emb, dim=1)
-                neg_scores = torch.sum(u_emb * neg_emb, dim=1)
-                bpr_loss = -torch.mean(F.logsigmoid(pos_scores - neg_scores))
-                reg_loss = (u_emb.norm(2).pow(2) + pos_emb.norm(2).pow(2) + neg_emb.norm(2).pow(2)) / 2
-                au_loss = model.calculate_loss(u_emb, pos_emb)
-                total = bpr_loss + 1e-4 * reg_loss + 0.1 * au_loss
+                u, pos, neg = user_emb[users], item_emb[pos_items], item_emb[neg_items]
+                bpr = -F.logsigmoid((u * pos).sum(1) - (u * neg).sum(1)).mean()
+                reg = (u.norm(2).pow(2) + pos.norm(2).pow(2) + neg.norm(2).pow(2)) / 2
+                au = model.calculate_loss(u, pos)
+                loss = bpr + 1e-4 * reg + 0.1 * au
+                if not torch.isfinite(loss):
+                    raise RuntimeError('Non-finite pretraining loss')
                 optimizer.zero_grad()
-                total.backward()
+                loss.backward()
                 optimizer.step()
-                total_train_loss += total.item()
-
-            avg_train_loss = total_train_loss / (len(triplets) // batch_size + 1)
+                loss_sum += loss.item() * len(batch)
+                seen += len(batch)
             model.eval()
-            current_hr = self.evaluate_hr(model, val_matrix, norm_adj, top_k=50)
-            print(f"[LightGCN Epoch {epoch}] Train Loss: {avg_train_loss:.4f}, HR@50: {current_hr:.4f}")
+            with torch.no_grad():
+                hr = self.evaluate_hr(model, val_matrix, norm_adj, top_k=50)
+            if seen == 0:
+                raise RuntimeError('No training triplets for LightGCN pretraining')
+            mean_loss = loss_sum / seen
+            training_losses.append(mean_loss)
 
-            if current_hr > best_hr:
-                best_hr = current_hr
-                best_model_state = model.state_dict()
-                epochs_no_improve = 0
-            else:
-                epochs_no_improve += 1
+            if epoch >= 100 and epoch % 20 == 0:
+                previous = np.mean(training_losses[-40:-20])
+                recent = np.mean(training_losses[-20:])
+                relative_change = abs(recent - previous) / max(abs(previous), 1e-12)
+                stable_checks = stable_checks + 1 if relative_change < 0.001 else 0
 
-            if epochs_no_improve >= patience:
-                print(f"[INFO] Early stopping triggered after {epoch + 1} epochs with HR@50 = {best_hr:.4f}.")
-                model.load_state_dict(best_model_state)
-                break
+            print(f'[Convergence LightGCN {epoch}] loss={mean_loss:.8f}, '
+                  f'HR@50={hr:.6f}, stable_checks={stable_checks}', flush=True)
+            if stable_checks >= 3:
+                print(f'[INFO] LightGCN training-loss plateau reached at epoch {epoch}.', flush=True)
+                return model
 
-        model.eval()
-        return model
+        raise RuntimeError('LightGCN pretraining reached 2000 epochs without reaching a training-loss plateau')
 
     def project(self, mat, max_n=50, lambda_val=10.0, min_score=0.2):
         """
