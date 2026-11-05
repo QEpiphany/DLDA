@@ -224,17 +224,17 @@ class ARLib():
         """
         Generate PoisonData if not exists, otherwise reuse it from ./data/poison/
         """
-        import time  # 如果还没全局引入
+        import time  
         self.logger.info("Poison Data Generating...")
         start_time = time.time()
         print("\n" + "_" * 80)
         print("Poison Data Generating...")
 
-        # 不带时间戳的文件夹前缀（用于查重）
+        
         base_name = self.attackModelName + "_" + self.datasetName + "_" + \
                     self.attackTargetChooseWay + "_" + str(self.targetSize) + "_" + str(self.maliciousUserSize)
 
-        # 查找是否已有以此 base_name 开头的投毒目录
+        
         poison_root = './data/poison/'
         reuse_path = None
         os.makedirs(poison_root, exist_ok=True)
@@ -252,7 +252,7 @@ class ARLib():
             print("_" * 80 + "\n")
             return
 
-        # 否则正常生成
+        
         self.poisonDataName = base_name + "_" + self.current_time
         poison_full_path = os.path.join(poison_root, self.poisonDataName)
         os.makedirs(poison_full_path, exist_ok=True)
@@ -279,7 +279,7 @@ class ARLib():
             print(f"Data attack No.{i + 1} by {self.attackModelName} has done.")
 
         print("_" * 80 + "\n")
-        elapsed_time = time.time() - start_time  # === 计算用时 ===
+        elapsed_time = time.time() - start_time  
         print(f"Poison Data Generation Finished. Time used: {elapsed_time:.2f} seconds.")
         self.logger.info(f"Poison Data Generation Finished. Time used: {elapsed_time:.2f} seconds.")
 
