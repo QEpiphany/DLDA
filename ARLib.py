@@ -65,6 +65,7 @@ class ARLib():
 
         # Determine target items
         self.targetItem = attackModel.targetItem
+        self.targetItemNames = [recommendModel.data.id2item[i] for i in attackModel.targetItem]
 
         # Logger file
         self.current_time = strftime("%Y-%m-%d %H-%M-%S", localtime(time()))
@@ -191,7 +192,8 @@ class ARLib():
                         re.sub("[0-9\.]", "", self.rawRecommendresult[i])[:-1]] = float(
                         re.sub("[^0-9\.]", "", self.attackRecommendresult[i]))
 
-            attackmetrics = AttackMetric(self.recommendModel, self.targetItem, self.top)
+            targets = [self.recommendModel.data.item[n] for n in self.targetItemNames]
+            attackmetrics = AttackMetric(self.recommendModel, targets, self.top)
             self.hitRate.append(attackmetrics.hitRate())
             self.precision.append(attackmetrics.precision())
             self.recall.append(attackmetrics.recall())
@@ -235,6 +237,7 @@ class ARLib():
         # 查找是否已有以此 base_name 开头的投毒目录
         poison_root = './data/poison/'
         reuse_path = None
+        os.makedirs(poison_root, exist_ok=True)
         for folder in os.listdir(poison_root):
             if folder.startswith(base_name):
                 full_path = os.path.join(poison_root, folder)
@@ -300,45 +303,27 @@ class ARLib():
         for i in range(len(self.ndcg[0])):
             self.avgNDCGAttack.append(sum(map(lambda x: x[i], self.ndcg)) / len(self.ndcg))
 
-        tempName = "Top 10\n"
-        for i in range(len(self.rawRecommendresult)):
-            if "Top" in self.rawRecommendresult[i]:
-                tempName = self.rawRecommendresult[i]
-                if len(self.result)!=1:self.result[-1][tempName] = dict()
-            elif len(self.result)==1:
-                self.result[-1][tempName][re.sub("[0-9\.]", "", self.rawRecommendresult[i])[:-1]] =\
-                    self.result[0][tempName][re.sub("[0-9\.]", "", self.rawRecommendresult[i])[:-1]]
-            else:
-                self.result[-1][tempName][re.sub("[0-9\.]", "", self.rawRecommendresult[i])[:-1]] = sum(
-                    [self.result[j][tempName][re.sub("[0-9\.]", "", self.rawRecommendresult[i])[:-1]] for j in
-                     range(len(self.result) - 1)]) / (len(self.result) - 1)
+        def average(runs):
+            return {
+                top: {k: sum(r[top][k] for r in runs) / len(runs) for k in runs[0][top]}
+                for top in runs[0]
+            }
 
-        tempName = "Top 10\n"
-        for i in range(len(self.rawRecommendresult)):
-            if "Top" in self.rawRecommendresult[i]:
-                tempName = self.rawRecommendresult[i]
-                if len(self.RecommendTestResult)!=1:self.RecommendTestResult[-1][tempName] = dict()
-            elif len(self.RecommendTestResult)==1:
-                self.RecommendTestResult[-1][tempName][re.sub("[0-9\.]", "", self.rawRecommendresult[i])[:-1]] =\
-                    self.RecommendTestResult[0][tempName][re.sub("[0-9\.]", "", self.rawRecommendresult[i])[:-1]]
-            else:
-                self.RecommendTestResult[-1][tempName][re.sub("[0-9\.]", "", self.rawRecommendresult[i])[:-1]] = sum(
-                    [self.RecommendTestResult[j][tempName][re.sub("[0-9\.]", "", self.rawRecommendresult[i])[:-1]] for j
-                     in
-                     range(len(self.RecommendTestResult) - 1)]) / (len(self.RecommendTestResult) - 1)
+        avgResult = average(self.result)
+        avgTestResult = average(self.RecommendTestResult)
 
         message = "\n" * 2 + "-" * 10 + "Recommender Test Result in Poisoning Environment on Average (Evaluation Metrics @Top-({}))".format(
             self.recommendArg.topK) + "-" * 10 + "\n"
-        for i in self.RecommendTestResult[-1].keys():
+        for i in avgTestResult.keys():
             message += str(i)
-            for j in self.RecommendTestResult[-1][i].keys():
-                message += str(j) + " : " + str(self.RecommendTestResult[-1][i][j]) + "\n"
+            for j in avgTestResult[i].keys():
+                message += str(j) + " : " + str(avgTestResult[i][j]) + "\n"
 
         message += "\n" + "-" * 10 + " Global Recommender Performance Variation" + "-" * 10 + "\n"
-        for i in self.result[-1].keys():
+        for i in avgResult.keys():
             message += str(i)
-            for j in self.result[-1][i].keys():
-                message += str(j) + " : " + str(self.result[-1][i][j]) + "\n"
+            for j in avgResult[i].keys():
+                message += str(j) + " : " + str(avgResult[i][j]) + "\n"
 
         result = dict()
         for i, j in enumerate(self.top):
